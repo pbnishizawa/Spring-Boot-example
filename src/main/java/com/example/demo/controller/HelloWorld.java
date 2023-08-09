@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,15 +15,22 @@ import com.fasterxml.jackson.core.sym.Name;
 @RequestMapping
 //localhost:8080?name=nishizawa
 public class HelloWorld {
+    //@RequestParamでリクエストパラメータを受け取る
     @GetMapping("/hello")
     public String getHello(@RequestParam("name") String name) {
         return "Hello, " + name;
     }
     
-    //@RequestParamでリクエストパラメータを受け取る
+    //POSTでリクエストボディからとる
     @PostMapping("/hello")
     public String postMethod(@RequestBody HelloWorldBean helloworldbean) {
         String name = helloworldbean.getName();
-        return "Hello, " + name ;
+        return "Hello, " + name;
+    }
+
+    //パスパラメータから値をとる
+    @GetMapping("/hello/{name}") 
+    public String hello(@PathVariable("name") String name) {
+        return "Hello, " + name;
     }
 }
