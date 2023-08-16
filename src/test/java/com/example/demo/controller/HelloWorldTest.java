@@ -5,10 +5,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-//テスト対象のサーバを起動して、Controllerの テストを行えるようにするアノテーション
+import com.example.demo.controller.Bean.HelloWorldBean;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+
+
+//テスト対象のサーバを起動して、Controllerのテストを行えるようにするアノテーション
 @SpringBootTest
 public class HelloWorldTest {
     private MockMvc mockMvc;
@@ -30,13 +39,42 @@ public class HelloWorldTest {
 
     //テストメソッドであることを意味する。値を返さないためvoid
     @Test
-    public void test() throws Exception {
+    public void getHelloTest() throws Exception {
     //mockMvcのperformを使ってリクエストを実行
     // /helloにGetでアクセス、指定したパラメータを入力
-    mockMvc.perform(get("/hello").param("name", ))
-           .andExpect(status().isOk())
-           .andExpect(content().string(expectedContent:"Hello, test")
+        mockMvc.perform(get("/hello")
+               .param("name", "test"))
+           //HTTPステータスがOKであることを確認
+               .andExpect(status().isOk())
+           //レスポンス本文のコンテンツを文字列としてアサート
+               .andExpect(content().string("Hello, test"));
 
+    }
+
+
+     //テスト対象のクラスをDIコンテナに登録    
+    @Autowired
+    private HelloWorldBean bean;
+
+    @Test
+    @DisplayName("/helloにリクエストした際にPOSTでリクエストボディからnameを取得してHello, nameを返す ")
+
+    public void postMethodTest() throws Exception {
+
+        HelloWorldBean bean = new HelloWorldBean();
+
+        mockMvc.perform(post("/hello")
+               .param("name", "test")
+         // JSON を送信する場合、ContentType()でContent-Type: application/jsonとなるように設定 
+               .contentType(MediaType.APPLICATION_JSON)
+         //リクエストボディに JSON を設定するには、contentの設定が必要
+               .content(bean))
+        // リクエストボディを指定
+               .content(ObjectMapper.writeValueAsString(bean)) 
+         //HTTPステータスがOKであることを確認
+               .andExpect(status().isOk())
+         //レスポンス本文のコンテンツを文字列としてアサート
+               .andExpect(content().string("Hello, test"));
     }
 
 }
